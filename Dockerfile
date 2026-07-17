@@ -12,17 +12,15 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     UV_SYSTEM_PYTHON=1
 
-# Copy dependency files
-COPY pyproject.toml ./
+# Copy dependency files and source
+COPY pyproject.toml uv.lock README.md ./
+COPY src/ ./src/
 
 # Install dependencies using uv
 # Note: This installs only production dependencies by default
 # For dev dependencies, uncomment the line below
 RUN uv pip install -e .
 # RUN uv pip install -e ".[dev]"
-
-# Copy application code
-COPY src/ ./src/
 
 # Optional: Copy tests if running tests in container
 # COPY tests/ ./tests/
