@@ -10,7 +10,7 @@ import argparse
 import yaml
 
 from feed_filter.logger import get_logger
-from feed_filter.pipeline import filter_channel
+from feed_filter.pipeline import filter_channel, write_combined_feed
 
 logger = get_logger(__name__)
 
@@ -19,13 +19,25 @@ def run_config(config_path: str) -> None:
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
+    all_kept = []
     for entry in config.get("channels", []):
-        filter_channel(
-            channel=entry["url"],
-            min_minutes=entry.get("min_minutes", 5.0),
-            output=entry["output"],
-            self_url=entry.get("self_url"),
-        )
+        try:
+            kept = filter_channel(
+                channel=entry["url"],
+                min_minutes=entry.get("min_minutes", 5.0),
+                output=entry["output"],
+                self_url=entry.get("self_url"),
+            )
+        except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
+            logger.error(
+                "skipping channel, failed to process", name=entry.get("name"), error=str(exc)
+            )
+            continue
+        all_kept.extend(kept)
+
+    combined_output = config.get("combined_output")
+    if combined_output:
+        write_combined_feed(all_kept, combined_output, self_url=config.get("combined_self_url"))
 
 
 def main() -> None:
