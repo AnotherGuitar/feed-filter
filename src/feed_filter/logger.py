@@ -7,8 +7,10 @@ structured JSON output suitable for production environments.
 
 import logging
 import sys
+from typing import cast
 
 import structlog
+from structlog.typing import Processor
 
 from feed_filter.config import settings
 
@@ -23,7 +25,7 @@ def setup_logging() -> None:
     )
 
     # Configure structlog processors
-    processors = [
+    processors: list[Processor] = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso"),
@@ -56,7 +58,7 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     Returns:
         Configured structlog logger
     """
-    return structlog.get_logger(name)
+    return cast(structlog.stdlib.BoundLogger, structlog.get_logger(name))
 
 
 # Setup logging on module import

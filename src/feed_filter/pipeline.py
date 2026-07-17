@@ -10,7 +10,9 @@ from feed_filter.youtube_source import fetch_feed, resolve_channel_id, video_dur
 logger = get_logger(__name__)
 
 
-def filter_channel(channel: str, min_minutes: float, output: str, self_url: str | None = None) -> int:
+def filter_channel(
+    channel: str, min_minutes: float, output: str, self_url: str | None = None
+) -> int:
     """Filter one channel's feed by minimum video duration and write it to `output`.
 
     Returns the number of entries kept.
@@ -54,5 +56,10 @@ def filter_channel(channel: str, min_minutes: float, output: str, self_url: str 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     tree.write(output_path, encoding="utf-8", xml_declaration=True)
 
-    logger.info("wrote filtered feed", kept=len(kept), total=len(source_feed.entries), output=str(output_path))
+    logger.info(
+        "wrote filtered feed",
+        kept=len(kept),
+        total=len(source_feed.entries),
+        output=str(output_path),
+    )
     return len(kept)

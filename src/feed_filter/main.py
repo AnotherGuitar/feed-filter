@@ -49,7 +49,10 @@ def main() -> None:
     parser.add_argument(
         "--self-url",
         default=None,
-        help="Public URL this feed will be hosted at, written as the feed's <link rel=self> (optional)",
+        help=(
+            "Public URL this feed will be hosted at, written as the feed's "
+            "<link rel=self> (optional)"
+        ),
     )
     parser.add_argument(
         "--config",

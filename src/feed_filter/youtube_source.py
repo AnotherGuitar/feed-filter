@@ -50,10 +50,14 @@ def fetch_feed(channel_id: str, retries: int = 5, delay: float = 2.0) -> feedpar
                 last_status = resp.status
         except Exception as exc:  # noqa: BLE001 - broad on purpose, we retry on any failure
             last_status = exc
-        logger.warning("feed fetch attempt failed, retrying", attempt=attempt, error=str(last_status))
+        logger.warning(
+            "feed fetch attempt failed, retrying", attempt=attempt, error=str(last_status)
+        )
         time.sleep(delay)
 
-    raise RuntimeError(f"Failed to fetch feed for channel {channel_id} after {retries} attempts: {last_status}")
+    raise RuntimeError(
+        f"Failed to fetch feed for channel {channel_id} after {retries} attempts: {last_status}"
+    )
 
 
 def video_duration_seconds(video_url: str) -> int | None:
@@ -71,4 +75,5 @@ def video_duration_seconds(video_url: str) -> int | None:
     }
     with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(video_url, download=False)
-        return info.get("duration")
+        duration = info.get("duration")
+        return int(duration) if duration is not None else None
