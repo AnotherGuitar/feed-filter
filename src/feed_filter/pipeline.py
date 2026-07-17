@@ -84,10 +84,12 @@ def filter_channel(
     return kept
 
 
-def write_combined_feed(all_kept: list, output: str, self_url: str | None = None) -> None:
+def write_combined_feed(
+    all_kept: list, output: str, self_url: str | None = None, title: str = "Combined"
+) -> None:
     """Merge kept entries from multiple channels into one Atom feed, newest first."""
     generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
-    tree = build_combined_feed(all_kept, generated_at, self_url=self_url)
+    tree = build_combined_feed(all_kept, generated_at, self_url=self_url, title=title)
 
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)

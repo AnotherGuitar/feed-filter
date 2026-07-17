@@ -37,7 +37,12 @@ def run_config(config_path: str) -> None:
 
     combined_output = config.get("combined_output")
     if combined_output:
-        write_combined_feed(all_kept, combined_output, self_url=config.get("combined_self_url"))
+        write_combined_feed(
+            all_kept,
+            combined_output,
+            self_url=config.get("combined_self_url"),
+            title=config.get("combined_title", "Combined"),
+        )
 
 
 def main() -> None:

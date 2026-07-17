@@ -101,7 +101,7 @@ def build_combined_feed(
     entries: list,
     generated_at: str,
     self_url: str | None = None,
-    title: str = "Combined filtered feed",
+    title: str = "Combined",
 ) -> ET.ElementTree:
     """Build an Atom feed merging entries from multiple channels, newest first.
 
