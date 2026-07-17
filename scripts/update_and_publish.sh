@@ -45,6 +45,23 @@ else
     for config in configs/*.yaml; do
         /usr/local/bin/uv run feed-filter --config "$config" --ping-hub
     done
+
+    # Feedly appears to cache by the final resolved URL rather than
+    # re-polling, ignoring WebSub/manual refresh - bumping a cache-busting
+    # query param on the redirect's target (while keeping the Netlify entry
+    # URL itself permanently stable) forces it to see a "new" URL and fetch
+    # fresh content instead of serving what it cached before.
+    cat > netlify-redirect/_redirects <<REDIRECTS
+/combined-politics.xml  https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-politics2.xml?v=${ts}  302
+REDIRECTS
+    git add netlify-redirect/_redirects
+    if git diff --cached --quiet; then
+        echo "No redirect change to commit"
+    else
+        git commit -m "Bump Netlify redirect cache-busting version"
+        git push
+    fi
+    (cd netlify-redirect && /Users/Chris/.nvm/versions/node/v22.19.0/bin/netlify deploy --prod --dir=.)
 fi
 
 repo_dir="$(pwd)"
