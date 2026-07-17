@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -9,10 +7,9 @@ services:
     volumes:
       # Mount source code for development (hot reload)
       - ./src:/app/src
-      # Mount .env file for environment variables
-      - ./.env:/app/.env
     env_file:
-      - .env
+      - path: .env
+        required: false
     ports:
       # Expose ports as needed for your application
       # Example: "8000:8000" for web services
