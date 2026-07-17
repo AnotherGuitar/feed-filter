@@ -18,7 +18,7 @@ from pathlib import Path
 import yaml
 
 from feed_filter.logger import get_logger
-from feed_filter.pipeline import filter_channel, write_combined_feed
+from feed_filter.pipeline import DEFAULT_RECENT_COUNT, filter_channel, write_combined_feed
 
 logger = get_logger(__name__)
 
@@ -68,6 +68,7 @@ def run_config(config_path: str, summary_path: str = DEFAULT_SUMMARY_PATH) -> in
                     min_minutes=entry.get("min_minutes", 5.0),
                     output=entry["output"],
                     self_url=entry.get("self_url"),
+                    recent_count=entry.get("recent_count", DEFAULT_RECENT_COUNT),
                 )
             except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
                 logger.warning(
@@ -153,6 +154,15 @@ def main() -> None:
             f"with --config (default: {DEFAULT_SUMMARY_PATH})"
         ),
     )
+    parser.add_argument(
+        "--recent-count",
+        type=int,
+        default=DEFAULT_RECENT_COUNT,
+        help=(
+            f"How many of the channel's most recent videos to check "
+            f"(default: {DEFAULT_RECENT_COUNT})"
+        ),
+    )
     args = parser.parse_args()
 
     if args.config:
@@ -166,6 +176,7 @@ def main() -> None:
         min_minutes=args.min_minutes,
         output=args.output,
         self_url=args.self_url,
+        recent_count=args.recent_count,
     )
 
 

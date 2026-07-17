@@ -48,15 +48,10 @@ def _build_entry_element(
         e_summary = ET.SubElement(entry_el, f"{{{ATOM_NS}}}summary")
         e_summary.text = summary
 
-    thumbnails = entry.get("media_thumbnail")
-    if thumbnails:
-        thumbnail = thumbnails[0]
+    thumbnail_url = entry.get("thumbnail_url")
+    if thumbnail_url:
         e_thumbnail = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}thumbnail")
-        e_thumbnail.set("url", thumbnail["url"])
-        if thumbnail.get("width"):
-            e_thumbnail.set("width", thumbnail["width"])
-        if thumbnail.get("height"):
-            e_thumbnail.set("height", thumbnail["height"])
+        e_thumbnail.set("url", thumbnail_url)
 
     duration_el = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}duration_seconds")
     duration_el.text = str(entry["_duration_seconds"])
@@ -65,7 +60,8 @@ def _build_entry_element(
 
 
 def build_filtered_feed(
-    source_feed,
+    channel_title: str,
+    channel_link: str,
     entries: list,
     generated_at: str,
     self_url: str | None = None,
@@ -74,11 +70,11 @@ def build_filtered_feed(
     feed_el = ET.Element(f"{{{ATOM_NS}}}feed")
 
     title = ET.SubElement(feed_el, f"{{{ATOM_NS}}}title")
-    title.text = f"{source_feed.feed.get('title', 'Filtered feed')} (filtered)"
+    title.text = f"{channel_title} (filtered)"
 
     link = ET.SubElement(feed_el, f"{{{ATOM_NS}}}link")
     link.set("rel", "alternate")
-    link.set("href", source_feed.feed.get("link", ""))
+    link.set("href", channel_link)
 
     if self_url:
         self_link = ET.SubElement(feed_el, f"{{{ATOM_NS}}}link")
@@ -86,7 +82,7 @@ def build_filtered_feed(
         self_link.set("href", self_url)
 
     feed_id = ET.SubElement(feed_el, f"{{{ATOM_NS}}}id")
-    feed_id.text = source_feed.feed.get("id", source_feed.feed.get("link", ""))
+    feed_id.text = channel_link
 
     feed_updated = ET.SubElement(feed_el, f"{{{ATOM_NS}}}updated")
     feed_updated.text = generated_at
