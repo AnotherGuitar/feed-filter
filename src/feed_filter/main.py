@@ -145,10 +145,18 @@ def main() -> None:
         default=None,
         help="Path to a channels.yaml to batch-process instead of a single channel",
     )
+    parser.add_argument(
+        "--summary-path",
+        default=DEFAULT_SUMMARY_PATH,
+        help=(
+            "Where to write the plain-text skipped-channels summary, only used "
+            f"with --config (default: {DEFAULT_SUMMARY_PATH})"
+        ),
+    )
     args = parser.parse_args()
 
     if args.config:
-        sys.exit(run_config(args.config))
+        sys.exit(run_config(args.config, summary_path=args.summary_path))
 
     if not args.channel:
         parser.error("channel is required unless --config is given")
