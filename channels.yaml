@@ -1,0 +1,10 @@
+# Channels processed by `feed-filter --config channels.yaml`, e.g. by a
+# scheduled GitHub Action that publishes to docs/ for GitHub Pages.
+#
+# `output` paths are relative to the repo root; point them at docs/<name>.xml
+# so GitHub Pages serves them at https://<user>.github.io/<repo>/<name>.xml
+channels:
+  - name: thegrayzone
+    url: "https://www.youtube.com/@thegrayzone7996/videos"
+    min_minutes: 5
+    output: docs/thegrayzone.xml

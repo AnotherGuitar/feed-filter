@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: feed-filter
+    volumes:
+      # Mount source code for development (hot reload)
+      - ./src:/app/src
+      # Mount .env file for environment variables
+      - ./.env:/app/.env
+    env_file:
+      - .env
+    ports:
+      # Expose ports as needed for your application
+      # Example: "8000:8000" for web services
+      - "8000:8000"
+    # Override default command for development
+    # command: python -m feed_filter.main
+
+    # Uncomment to keep container running for debugging
+    # stdin_open: true
+    # tty: true
+
+  # Example: Add database service
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: your-project-db
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+  #     POSTGRES_DB: ${DB_NAME:-myapp}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+
+  # Example: Add Redis service
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: your-project-redis
+  #   ports:
+  #     - "6379:6379"
+
+# volumes:
+#   postgres_data:
