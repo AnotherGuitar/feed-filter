@@ -65,6 +65,6 @@ channels:
 
 # Merges every channel in this file into a single feed, newest first, so you
 # only need to give Feedly (or add more politics channels) one URL.
-combined_output: docs/combined-politics.xml
-combined_self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-politics.xml"
+combined_output: docs/combined-politics2.xml
+combined_self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-politics2.xml"
 combined_title: "Combined - Politics"
