@@ -18,6 +18,11 @@
 # `recent_count` (default 20) is how many of the channel's most recent videos
 # to check.
 #
+# `start_at` (optional) links to a timestamp partway into every video instead
+# of the start, to skip past an intro/ad - accepts "M:SS"/"H:MM:SS" or a
+# plain number of seconds. Only affects the link; duration/live_status checks
+# still use the video's actual full length.
+#
 # Streams still live, not yet started, or still being processed after ending
 # are always skipped, regardless of min_minutes, since their duration isn't
 # final yet. Only fully finished streams pass through to the duration check.
@@ -33,6 +38,7 @@ channels:
     url: "https://www.youtube.com/@judgingfreedom/streams"
     min_minutes: 5
     recent_count: 50
+    start_at: "1:08"
     output: docs/judgingfreedom-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/judgingfreedom-streams.xml"
 

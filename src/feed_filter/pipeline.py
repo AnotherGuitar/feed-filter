@@ -13,12 +13,34 @@ UNFINISHED_LIVE_STATUSES = {"is_live", "is_upcoming", "post_live"}
 DEFAULT_RECENT_COUNT = 20
 
 
+def parse_start_at(value: str | int | float) -> int:
+    """Parse a start_at config value into whole seconds.
+
+    Accepts a plain number of seconds (68) or "M:SS"/"H:MM:SS" strings (1:08).
+    """
+    if isinstance(value, int | float):
+        return int(value)
+
+    seconds = 0
+    for part in str(value).split(":"):
+        seconds = seconds * 60 + int(part)
+    return seconds
+
+
+def _apply_start_at(video_url: str, start_at_seconds: int) -> str:
+    if not start_at_seconds:
+        return video_url
+    separator = "&" if "?" in video_url else "?"
+    return f"{video_url}{separator}t={start_at_seconds}s"
+
+
 def filter_channel(
     channel: str,
     min_minutes: float,
     output: str,
     self_url: str | None = None,
     recent_count: int = DEFAULT_RECENT_COUNT,
+    start_at: str | int | float | None = None,
 ) -> list:
     """Filter a channel/tab's recent videos by minimum duration and write it to `output`.
 
@@ -27,9 +49,16 @@ def filter_channel(
     duration isn't final yet. Only fully finished streams (was_live) and
     regular non-stream videos pass through to the duration check.
 
+    start_at skips past an intro/ad at the start of every video from this
+    channel by linking to a specific timestamp (e.g. "1:08" or 68 seconds).
+    Only affects the entry's link - duration/live_status checks still use the
+    video's actual full length.
+
     Returns the list of kept entries (each tagged with "_duration_seconds" and
     "_source_title"), so callers can merge them into a combined feed.
     """
+    start_at_seconds = parse_start_at(start_at) if start_at else 0
+
     channel_info = list_recent_videos(channel, limit=recent_count)
     channel_title = channel_info["channel_title"]
     channel_link = channel_info["channel_link"]
@@ -72,7 +101,7 @@ def filter_channel(
             kept.append(
                 {
                     "title": metadata.get("title", ""),
-                    "link": video_url,
+                    "link": _apply_start_at(video_url, start_at_seconds),
                     "id": f"yt:video:{metadata.get('video_id')}",
                     "published": metadata.get("published"),
                     "updated": metadata.get("published"),

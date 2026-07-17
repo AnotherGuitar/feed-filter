@@ -73,6 +73,7 @@ def run_config(config_path: str, summary_path: str = DEFAULT_SUMMARY_PATH) -> in
                     output=entry["output"],
                     self_url=entry.get("self_url"),
                     recent_count=entry.get("recent_count", DEFAULT_RECENT_COUNT),
+                    start_at=entry.get("start_at"),
                 )
             except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
                 logger.warning(
@@ -170,6 +171,14 @@ def main() -> None:
             f"(default: {DEFAULT_RECENT_COUNT})"
         ),
     )
+    parser.add_argument(
+        "--start-at",
+        default=None,
+        help=(
+            "Link to this timestamp in every video instead of the start, e.g. "
+            '"1:08" or 68, to skip past an intro/ad (optional)'
+        ),
+    )
     args = parser.parse_args()
 
     if args.config:
@@ -184,6 +193,7 @@ def main() -> None:
         output=args.output,
         self_url=args.self_url,
         recent_count=args.recent_count,
+        start_at=args.start_at,
     )
 
 
