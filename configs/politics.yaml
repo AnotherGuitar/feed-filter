@@ -56,6 +56,13 @@ channels:
     output: docs/syrianaanalysis-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/syrianaanalysis-streams.xml"
 
+  - name: lunaoi-main
+    url: "https://www.youtube.com/@Lunaoi/videos"
+    min_minutes: 5
+    recent_count: 50
+    output: docs/lunaoi-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/lunaoi-main.xml"
+
 # Merges every channel in this file into a single feed, newest first, so you
 # only need to give Feedly (or add more politics channels) one URL.
 combined_output: docs/combined-politics.xml
