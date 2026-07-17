@@ -66,6 +66,16 @@ def build_filtered_feed(
             e_summary = ET.SubElement(entry_el, f"{{{ATOM_NS}}}summary")
             e_summary.text = summary
 
+        thumbnails = entry.get("media_thumbnail")
+        if thumbnails:
+            thumbnail = thumbnails[0]
+            e_thumbnail = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}thumbnail")
+            e_thumbnail.set("url", thumbnail["url"])
+            if thumbnail.get("width"):
+                e_thumbnail.set("width", thumbnail["width"])
+            if thumbnail.get("height"):
+                e_thumbnail.set("height", thumbnail["height"])
+
         duration_el = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}duration_seconds")
         duration_el.text = str(entry["_duration_seconds"])
 
