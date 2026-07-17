@@ -2,7 +2,11 @@
 
 Two modes:
   feed-filter <channel> --min-minutes N --output PATH   # one channel
-  feed-filter --config channels.yaml                     # batch, e.g. in CI
+  feed-filter --config configs/politics.yaml             # batch, e.g. in CI
+
+Multiple config files (e.g. configs/politics.yaml, configs/sports.yaml) can
+each define their own channels and their own combined feed - run once per
+file to keep them independent (see scripts/update_and_publish.sh).
 
 Exit codes for --config mode: 0 if every channel succeeded, 2 if one or more
 channels were still failing after all retry passes (whatever did succeed is
@@ -144,7 +148,10 @@ def main() -> None:
     parser.add_argument(
         "--config",
         default=None,
-        help="Path to a channels.yaml to batch-process instead of a single channel",
+        help=(
+            "Path to a config yaml (e.g. configs/politics.yaml) to "
+            "batch-process instead of a single channel"
+        ),
     )
     parser.add_argument(
         "--summary-path",

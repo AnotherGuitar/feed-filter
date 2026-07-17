@@ -1,0 +1,15 @@
+# See configs/politics.yaml for full field documentation. Empty for now -
+# add channels in the same shape as that file's `channels:` list, e.g.:
+#
+# channels:
+#   - name: somechannel-main
+#     url: "https://www.youtube.com/@somechannel/videos"
+#     min_minutes: 5
+#     recent_count: 50
+#     output: docs/somechannel-main.xml
+#     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/somechannel-main.xml"
+channels: []
+
+combined_output: docs/combined-sports.xml
+combined_self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-sports.xml"
+combined_title: "Sports"
