@@ -3,9 +3,15 @@
 Two modes:
   feed-filter <channel> --min-minutes N --output PATH   # one channel
   feed-filter --config channels.yaml                     # batch, e.g. in CI
+
+Exit codes for --config mode: 0 if every channel succeeded, 2 if one or more
+channels were still failing after all retry passes (whatever did succeed is
+still written/combined - this just flags that something's missing).
 """
 
 import argparse
+import sys
+import time
 
 import yaml
 
@@ -14,26 +20,59 @@ from feed_filter.pipeline import filter_channel, write_combined_feed
 
 logger = get_logger(__name__)
 
+MAX_EXTRA_PASSES = 3
+PASS_RETRY_DELAY = 30.0
 
-def run_config(config_path: str) -> None:
+
+def run_config(config_path: str) -> int:
+    """Process every channel, retrying failed ones in later passes.
+
+    Returns 0 if every channel eventually succeeded, 2 if any channel was
+    still failing after all passes.
+    """
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
+    pending = config.get("channels", [])
     all_kept = []
-    for entry in config.get("channels", []):
-        try:
-            kept = filter_channel(
-                channel=entry["url"],
-                min_minutes=entry.get("min_minutes", 5.0),
-                output=entry["output"],
-                self_url=entry.get("self_url"),
+    last_errors: dict = {}
+
+    delay = PASS_RETRY_DELAY
+    for pass_num in range(1, MAX_EXTRA_PASSES + 2):
+        still_pending = []
+        for entry in pending:
+            name = entry.get("name", entry.get("url"))
+            try:
+                kept = filter_channel(
+                    channel=entry["url"],
+                    min_minutes=entry.get("min_minutes", 5.0),
+                    output=entry["output"],
+                    self_url=entry.get("self_url"),
+                )
+            except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
+                logger.warning(
+                    "channel failed this pass, will retry later",
+                    name=name,
+                    pass_num=pass_num,
+                    error=str(exc),
+                )
+                last_errors[name] = str(exc)
+                still_pending.append(entry)
+                continue
+            last_errors.pop(name, None)
+            all_kept.extend(kept)
+
+        pending = still_pending
+        if not pending:
+            break
+        if pass_num <= MAX_EXTRA_PASSES:
+            logger.warning(
+                "retrying failed channels after backoff",
+                channels=[e.get("name", e.get("url")) for e in pending],
+                delay_seconds=delay,
             )
-        except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
-            logger.error(
-                "skipping channel, failed to process", name=entry.get("name"), error=str(exc)
-            )
-            continue
-        all_kept.extend(kept)
+            time.sleep(delay)
+            delay *= 2
 
     combined_output = config.get("combined_output")
     if combined_output:
@@ -43,6 +82,15 @@ def run_config(config_path: str) -> None:
             self_url=config.get("combined_self_url"),
             title=config.get("combined_title", "Combined"),
         )
+
+    if last_errors:
+        logger.error(
+            "channels still failing after all retry passes - some content was skipped",
+            channels=last_errors,
+        )
+        return 2
+
+    return 0
 
 
 def main() -> None:
@@ -79,8 +127,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.config:
-        run_config(args.config)
-        return
+        sys.exit(run_config(args.config))
 
     if not args.channel:
         parser.error("channel is required unless --config is given")
