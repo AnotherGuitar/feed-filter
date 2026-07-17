@@ -66,7 +66,23 @@ def list_recent_videos(channel_url: str, limit: int = 20, retries: int = 5) -> d
     raise RuntimeError(f"Failed to list videos for {url} after {retries} attempts: {last_error}")
 
 
-def fetch_video_metadata(video_url: str) -> dict:
+# Substrings of yt-dlp error messages that mean retrying is pointless: the
+# failure won't resolve itself on a later attempt (unlike a generic
+# "unavailable" error, which is sometimes just transient flakiness).
+PERMANENT_VIDEO_ERROR_PATTERNS = (
+    "join this channel",  # members-only content we don't have access to
+    "premieres in",  # scheduled video, not available until its premiere time
+    "private video",
+    "this video has been removed",
+)
+
+
+def _is_permanent_video_error(error_message: str) -> bool:
+    lowered = error_message.lower()
+    return any(pattern in lowered for pattern in PERMANENT_VIDEO_ERROR_PATTERNS)
+
+
+def fetch_video_metadata(video_url: str, retries: int = 3, delay: float = 3.0) -> dict:
     """Fetch a video's full metadata: title, description, thumbnail, duration,
     live_status, and published date.
 
@@ -74,22 +90,43 @@ def fetch_video_metadata(video_url: str) -> dict:
     for a regular (never-live) video. A stream still in progress, not yet
     started, or still being processed reports duration as None/0, so callers
     should check live_status before trusting duration.
+
+    Retries on errors that look transient (e.g. "video unavailable" can be a
+    momentary glitch), but not on ones that won't resolve on a later attempt
+    (members-only, not-yet-premiered, etc).
     """
-    with yt_dlp.YoutubeDL(YDL_BASE_OPTS) as ydl:
-        info = ydl.extract_info(video_url, download=False)
+    for attempt in range(1, retries + 1):
+        try:
+            with yt_dlp.YoutubeDL(YDL_BASE_OPTS) as ydl:
+                info = ydl.extract_info(video_url, download=False)
+        except Exception as exc:  # noqa: BLE001 - broad on purpose, classified below
+            if _is_permanent_video_error(str(exc)) or attempt == retries:
+                raise
+            logger.warning(
+                "video metadata fetch failed, retrying",
+                url=video_url,
+                attempt=attempt,
+                error=str(exc),
+            )
+            time.sleep(delay)
+            delay *= 2
+            continue
 
-    duration = info.get("duration")
-    published = _extract_published(info)
+        duration = info.get("duration")
+        published = _extract_published(info)
+        return {
+            "video_id": info.get("id"),
+            "title": info.get("title"),
+            "description": info.get("description"),
+            "thumbnail": info.get("thumbnail"),
+            "duration": int(duration) if duration is not None else None,
+            "live_status": info.get("live_status"),
+            "published": published,
+        }
 
-    return {
-        "video_id": info.get("id"),
-        "title": info.get("title"),
-        "description": info.get("description"),
-        "thumbnail": info.get("thumbnail"),
-        "duration": int(duration) if duration is not None else None,
-        "live_status": info.get("live_status"),
-        "published": published,
-    }
+    raise RuntimeError(  # pragma: no cover - loop always returns or raises above
+        f"fetch_video_metadata: exhausted {retries} attempts for {video_url}"
+    )
 
 
 def _extract_published(info: dict) -> str | None:
