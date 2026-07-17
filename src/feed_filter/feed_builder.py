@@ -115,7 +115,7 @@ def build_combined_feed(
         self_link.set("href", self_url)
 
     feed_id = ET.SubElement(feed_el, f"{{{ATOM_NS}}}id")
-    feed_id.text = "urn:feed-filter:combined"
+    feed_id.text = self_url or f"urn:feed-filter:combined:{title.lower().replace(' ', '-')}"
 
     feed_updated = ET.SubElement(feed_el, f"{{{ATOM_NS}}}updated")
     feed_updated.text = generated_at
