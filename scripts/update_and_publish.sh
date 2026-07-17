@@ -38,6 +38,13 @@ if git diff --cached --quiet; then
 else
     git commit -m "Update filtered feeds"
     git push
+
+    # Ping the WebSub hub now that the new content is actually live, so
+    # hub-aware readers (e.g. Feedly) get it without waiting on their own
+    # polling schedule.
+    for config in configs/*.yaml; do
+        /usr/local/bin/uv run feed-filter --config "$config" --ping-hub
+    done
 fi
 
 repo_dir="$(pwd)"

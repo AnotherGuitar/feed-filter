@@ -5,6 +5,11 @@ import xml.etree.ElementTree as ET
 ATOM_NS = "http://www.w3.org/2005/Atom"
 MEDIA_NS = "http://search.yahoo.com/mrss/"
 
+# Public WebSub (formerly PubSubHubbub) hub. Declaring it here plus pinging it
+# after every publish (see websub.ping_hub) lets hub-aware readers like Feedly
+# get near-instant updates instead of waiting on their own polling schedule.
+WEBSUB_HUB_URL = "https://pubsubhubbub.appspot.com/"
+
 ET.register_namespace("", ATOM_NS)
 ET.register_namespace("media", MEDIA_NS)
 
@@ -81,6 +86,10 @@ def build_filtered_feed(
         self_link.set("rel", "self")
         self_link.set("href", self_url)
 
+        hub_link = ET.SubElement(feed_el, f"{{{ATOM_NS}}}link")
+        hub_link.set("rel", "hub")
+        hub_link.set("href", WEBSUB_HUB_URL)
+
     feed_id = ET.SubElement(feed_el, f"{{{ATOM_NS}}}id")
     feed_id.text = channel_link
 
@@ -113,6 +122,10 @@ def build_combined_feed(
         self_link = ET.SubElement(feed_el, f"{{{ATOM_NS}}}link")
         self_link.set("rel", "self")
         self_link.set("href", self_url)
+
+        hub_link = ET.SubElement(feed_el, f"{{{ATOM_NS}}}link")
+        hub_link.set("rel", "hub")
+        hub_link.set("href", WEBSUB_HUB_URL)
 
     feed_id = ET.SubElement(feed_el, f"{{{ATOM_NS}}}id")
     feed_id.text = self_url or f"urn:feed-filter:combined:{title.lower().replace(' ', '-')}"

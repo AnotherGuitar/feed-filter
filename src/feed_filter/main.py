@@ -23,6 +23,7 @@ import yaml
 
 from feed_filter.logger import get_logger
 from feed_filter.pipeline import DEFAULT_RECENT_COUNT, filter_channel, write_combined_feed
+from feed_filter.websub import ping_hub
 
 logger = get_logger(__name__)
 
@@ -120,6 +121,25 @@ def run_config(config_path: str, summary_path: str = DEFAULT_SUMMARY_PATH) -> in
     return 0
 
 
+def ping_config_hubs(config_path: str) -> None:
+    """Ping the WebSub hub for every self_url in config_path.
+
+    Call this after publishing (i.e. after git push), not as part of
+    run_config, since the hub re-fetches the feed URL itself upon being
+    pinged and needs the new content to actually be live first.
+    """
+    with open(config_path) as f:
+        config = yaml.safe_load(f)
+
+    urls = [c["self_url"] for c in config.get("channels", []) if c.get("self_url")]
+    combined_self_url = config.get("combined_self_url")
+    if combined_self_url:
+        urls.append(combined_self_url)
+
+    for url in urls:
+        ping_hub(url)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -179,7 +199,19 @@ def main() -> None:
             '"1:08" or 68, to skip past an intro/ad (optional)'
         ),
     )
+    parser.add_argument(
+        "--ping-hub",
+        action="store_true",
+        help=(
+            "Instead of filtering, ping the WebSub hub for every self_url in "
+            "--config. Run this after publishing (git push), not before."
+        ),
+    )
     args = parser.parse_args()
+
+    if args.config and args.ping_hub:
+        ping_config_hubs(args.config)
+        return
 
     if args.config:
         sys.exit(run_config(args.config, summary_path=args.summary_path))
