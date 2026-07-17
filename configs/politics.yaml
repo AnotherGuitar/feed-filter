@@ -40,4 +40,4 @@ channels:
 # only need to give Feedly (or add more politics channels) one URL.
 combined_output: docs/combined-politics.xml
 combined_self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-politics.xml"
-combined_title: "Politics"
+combined_title: "Combined - Politics"
