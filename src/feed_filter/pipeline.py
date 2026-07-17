@@ -9,7 +9,7 @@ from feed_filter.youtube_source import fetch_feed, fetch_video_metadata, resolve
 
 logger = get_logger(__name__)
 
-UNFINISHED_LIVE_STATUSES = {"is_live", "is_upcoming"}
+UNFINISHED_LIVE_STATUSES = {"is_live", "is_upcoming", "post_live"}
 
 
 def filter_channel(
@@ -17,8 +17,10 @@ def filter_channel(
 ) -> list:
     """Filter one channel's feed by minimum video duration and write it to `output`.
 
-    Streams still in progress or not yet started are always skipped, regardless
-    of min_minutes, since their duration isn't final yet.
+    Streams still live, not yet started, or still being processed after ending
+    (post_live) are always skipped, regardless of min_minutes, since their
+    duration isn't final yet. Only fully finished streams (was_live) and
+    regular non-stream videos pass through to the duration check.
 
     Returns the list of kept entries (each tagged with "_duration_seconds" and
     "_source_title"), so callers can merge them into a combined feed.

@@ -10,8 +10,9 @@
 # -streams, -shorts, etc), so the same channel can be followed multiple ways
 # without name/output collisions.
 #
-# Streams still in progress or not yet started are always skipped, regardless
-# of min_minutes, since their duration isn't final yet.
+# Streams still live, not yet started, or still being processed after ending
+# are always skipped, regardless of min_minutes, since their duration isn't
+# final yet. Only fully finished streams pass through to the duration check.
 channels:
   - name: thegrayzone-main
     url: "https://www.youtube.com/@thegrayzone7996/videos"
