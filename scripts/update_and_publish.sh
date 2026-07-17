@@ -50,10 +50,16 @@ else
     # re-polling, ignoring WebSub/manual refresh - bumping a cache-busting
     # query param on the redirect's target (while keeping the Netlify entry
     # URL itself permanently stable) forces it to see a "new" URL and fetch
-    # fresh content instead of serving what it cached before.
-    cat > netlify-redirect/_redirects <<REDIRECTS
-/combined-politics.xml  https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-politics2.xml?v=${ts}  302
-REDIRECTS
+    # fresh content instead of serving what it cached before. One redirect
+    # per config file that defines a combined_output.
+    : > netlify-redirect/_redirects
+    for config in configs/*.yaml; do
+        topic="$(basename "$config" .yaml)"
+        combined_output="$(python3 -c "import yaml; print(yaml.safe_load(open('$config')).get('combined_output') or '')")"
+        if [ -n "$combined_output" ]; then
+            echo "/combined-${topic}.xml  https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/${combined_output}?v=${ts}  302" >> netlify-redirect/_redirects
+        fi
+    done
     git add netlify-redirect/_redirects
     if git diff --cached --quiet; then
         echo "No redirect change to commit"
