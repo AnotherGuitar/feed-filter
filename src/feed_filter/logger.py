@@ -33,11 +33,14 @@ def setup_logging() -> None:
         structlog.processors.StackInfoRenderer(),
     ]
 
-    # Use JSON formatting in production, console formatting in development
+    # Use JSON formatting in production, console formatting in development.
+    # Colors are only useful in an interactive terminal - when stdout is
+    # redirected to a file (e.g. the launchd job), raw ANSI codes just clutter
+    # the log, so disable them whenever stdout isn't a TTY.
     if settings.is_production:
         processors.append(structlog.processors.JSONRenderer())
     else:
-        processors.append(structlog.dev.ConsoleRenderer())
+        processors.append(structlog.dev.ConsoleRenderer(colors=sys.stdout.isatty()))
 
     structlog.configure(
         processors=processors,
