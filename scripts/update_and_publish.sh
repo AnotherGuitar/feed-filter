@@ -19,8 +19,16 @@ else
     git push
 fi
 
+repo_dir="$(pwd)"
+
 if [ "$status" -eq 2 ]; then
-    osascript -e 'display notification "One or more channels were skipped after repeated failures - check ~/Library/Logs/feed-filter/update.err.log" with title "feed-filter" sound name "Basso"'
+    terminal-notifier -title "feed-filter" \
+        -message "One or more channels were skipped after repeated failures - click for details" \
+        -sound Basso \
+        -open "file://${repo_dir}/logs/last_run_summary.txt"
 elif [ "$status" -ne 0 ]; then
-    osascript -e 'display notification "feed-filter failed unexpectedly - check ~/Library/Logs/feed-filter/update.err.log" with title "feed-filter" sound name "Basso"'
+    terminal-notifier -title "feed-filter" \
+        -message "feed-filter failed unexpectedly - click for the error log" \
+        -sound Basso \
+        -open "file://${repo_dir}/logs/update.err.log"
 fi

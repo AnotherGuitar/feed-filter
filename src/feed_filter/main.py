@@ -12,6 +12,8 @@ still written/combined - this just flags that something's missing).
 import argparse
 import sys
 import time
+from datetime import UTC, datetime
+from pathlib import Path
 
 import yaml
 
@@ -22,13 +24,31 @@ logger = get_logger(__name__)
 
 MAX_EXTRA_PASSES = 3
 PASS_RETRY_DELAY = 30.0
+DEFAULT_SUMMARY_PATH = "logs/last_run_summary.txt"
 
 
-def run_config(config_path: str) -> int:
+def _write_error_summary(summary_path: str, errors: dict) -> None:
+    """Write a plain-text (no ANSI/structlog noise) summary of what got skipped."""
+    path = Path(summary_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    lines = [
+        f"feed-filter run at {datetime.now(UTC).isoformat()}",
+        "",
+        "The following channels were skipped after all retry passes:",
+        "",
+    ]
+    for name, error in errors.items():
+        lines.append(f"- {name}: {error}")
+    path.write_text("\n".join(lines) + "\n")
+
+
+def run_config(config_path: str, summary_path: str = DEFAULT_SUMMARY_PATH) -> int:
     """Process every channel, retrying failed ones in later passes.
 
     Returns 0 if every channel eventually succeeded, 2 if any channel was
-    still failing after all passes.
+    still failing after all passes (a readable summary is also written to
+    summary_path in that case).
     """
     with open(config_path) as f:
         config = yaml.safe_load(f)
@@ -88,6 +108,7 @@ def run_config(config_path: str) -> int:
             "channels still failing after all retry passes - some content was skipped",
             channels=last_errors,
         )
+        _write_error_summary(summary_path, last_errors)
         return 2
 
     return 0

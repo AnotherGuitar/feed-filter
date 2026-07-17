@@ -43,9 +43,9 @@
     <true/>
 
     <key>StandardOutPath</key>
-    <string>/Users/Chris/Library/Logs/feed-filter/update.log</string>
+    <string>/Users/Chris/workspaces/feed-filter/logs/update.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/Chris/Library/Logs/feed-filter/update.err.log</string>
+    <string>/Users/Chris/workspaces/feed-filter/logs/update.err.log</string>
 </dict>
 </plist>
