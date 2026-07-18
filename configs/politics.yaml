@@ -23,6 +23,10 @@
 # plain number of seconds. Only affects the link; duration/live_status checks
 # still use the video's actual full length.
 #
+# `exclude_title_contains` (optional) is a list of substrings (case-
+# insensitive) - any video whose title contains one is skipped entirely,
+# e.g. a recurring segment you don't want.
+#
 # Streams still live, not yet started, or still being processed after ending
 # are always skipped, regardless of min_minutes, since their duration isn't
 # final yet. Only fully finished streams pass through to the duration check.
