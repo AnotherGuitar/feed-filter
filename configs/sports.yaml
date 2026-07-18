@@ -23,6 +23,13 @@ channels:
     output: docs/foulterritory-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/foulterritory-main.xml"
 
+  - name: nflonnbc-main
+    url: "https://www.youtube.com/@NFLonNBC/videos"
+    min_minutes: 1
+    recent_count: 10
+    output: docs/nflonnbc-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/nflonnbc-main.xml"
+
   - name: nflonnbc-streams
     url: "https://www.youtube.com/@NFLonNBC/streams"
     min_minutes: 5
