@@ -5,28 +5,28 @@
 #   - name: somechannel-main
 #     url: "https://www.youtube.com/@somechannel/videos"
 #     min_minutes: 5
-#     recent_count: 50
+#     recent_count: 10
 #     output: docs/somechannel-main.xml
 #     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/somechannel-main.xml"
 channels:
   - name: chinadriven-main
     url: "https://www.youtube.com/@ChinaDriven/videos"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/chinadriven-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/chinadriven-main.xml"
 
   - name: foulterritory-main
     url: "https://www.youtube.com/@foulterritoryshow/videos"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/foulterritory-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/foulterritory-main.xml"
 
   - name: nflonnbc-streams
     url: "https://www.youtube.com/@NFLonNBC/streams"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     exclude_title_contains:
       - "rotoworld football show"
     output: docs/nflonnbc-streams.xml
@@ -35,7 +35,7 @@ channels:
   - name: pablotorrefindsout-main
     url: "https://www.youtube.com/@PabloTorreFindsOut/videos"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/pablotorrefindsout-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/pablotorrefindsout-main.xml"
 

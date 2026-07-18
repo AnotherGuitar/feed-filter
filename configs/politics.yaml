@@ -34,21 +34,21 @@ channels:
   - name: declineandfall-streams
     url: "https://www.youtube.com/@DeclineAndFall-d5k/streams"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/declineandfall-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/declineandfall-streams.xml"
 
   - name: thegrayzone-main
     url: "https://www.youtube.com/@thegrayzone7996/videos"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/thegrayzone-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/thegrayzone-main.xml"
 
   - name: judgingfreedom-streams
     url: "https://www.youtube.com/@judgingfreedom/streams"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     start_at: "1:08"
     output: docs/judgingfreedom-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/judgingfreedom-streams.xml"
@@ -56,21 +56,21 @@ channels:
   - name: lunaoi-main
     url: "https://www.youtube.com/@Lunaoi/videos"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/lunaoi-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/lunaoi-main.xml"
 
   - name: syrianaanalysis-main
     url: "https://www.youtube.com/@SyrianaAnalysis/videos"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/syrianaanalysis-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/syrianaanalysis-main.xml"
 
   - name: syrianaanalysis-streams
     url: "https://www.youtube.com/@SyrianaAnalysis/streams"
     min_minutes: 5
-    recent_count: 50
+    recent_count: 10
     output: docs/syrianaanalysis-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/syrianaanalysis-streams.xml"
 
