@@ -1,5 +1,6 @@
 """Building Atom feeds from a subset of one or more source feeds' entries."""
 
+import html
 import xml.etree.ElementTree as ET
 
 ATOM_NS = "http://www.w3.org/2005/Atom"
@@ -57,6 +58,16 @@ def _build_entry_element(
     if thumbnail_url:
         e_thumbnail = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}thumbnail")
         e_thumbnail.set("url", thumbnail_url)
+
+        # Readers that don't parse the media: namespace (e.g. NetNewsWire)
+        # still show a per-item thumbnail if it's embedded as an <img> in the
+        # entry's HTML content, which is far more universally supported.
+        body_html = f'<img src="{html.escape(thumbnail_url)}"><br>'
+        if summary:
+            body_html += html.escape(summary).replace("\n", "<br>")
+        e_content = ET.SubElement(entry_el, f"{{{ATOM_NS}}}content")
+        e_content.set("type", "html")
+        e_content.text = body_html
 
     duration_el = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}duration_seconds")
     duration_el.text = str(entry["_duration_seconds"])
