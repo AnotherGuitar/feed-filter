@@ -1,6 +1,7 @@
 """Core pipeline: fetch a channel's feed, filter by duration, build the output feed."""
 
-from datetime import UTC, datetime
+from collections import defaultdict
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from feed_filter.feed_builder import build_combined_feed, build_filtered_feed
@@ -37,6 +38,30 @@ def _apply_start_at(video_url: str, start_at_seconds: int) -> str:
 def _title_excluded(title: str, exclude_patterns: list) -> bool:
     lowered = title.lower()
     return any(pattern in lowered for pattern in exclude_patterns)
+
+
+def _disambiguate_same_day_timestamps(kept: list) -> None:
+    """yt-dlp sometimes only gives us a date, not a real timestamp, for
+    regular (non-live) uploads - multiple videos from the same day then
+    collide on an identical published/updated value, which breaks stable
+    sorting and produces duplicate atom:updated values some readers flag.
+
+    kept is already newest-first, so within each colliding group we stagger
+    entries a second apart, preserving that relative order.
+    """
+    groups: dict = defaultdict(list)
+    for entry in kept:
+        if entry.get("published"):
+            groups[entry["published"]].append(entry)
+
+    for value, group in groups.items():
+        if len(group) < 2:
+            continue
+        base = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        for offset, entry in enumerate(group):
+            adjusted = (base - timedelta(seconds=offset)).isoformat().replace("+00:00", "Z")
+            entry["published"] = adjusted
+            entry["updated"] = adjusted
 
 
 def filter_channel(
@@ -136,6 +161,8 @@ def filter_channel(
                     "_source_title": channel_title,
                 }
             )
+
+    _disambiguate_same_day_timestamps(kept)
 
     generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
     tree = build_filtered_feed(channel_title, channel_link, kept, generated_at, self_url=self_url)
