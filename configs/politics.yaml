@@ -15,7 +15,7 @@
 # -streams, -shorts, etc), so the same channel can be followed multiple ways
 # without name/output collisions.
 #
-# `recent_count` (default 20) is how many of the channel's most recent videos
+# `recent_count` (default 10) is how many of the channel's most recent videos
 # to check.
 #
 # `start_at` (optional) links to a timestamp partway into every video instead

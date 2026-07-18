@@ -11,7 +11,7 @@ from feed_filter.youtube_source import fetch_video_metadata, list_recent_videos
 logger = get_logger(__name__)
 
 UNFINISHED_LIVE_STATUSES = {"is_live", "is_upcoming", "post_live"}
-DEFAULT_RECENT_COUNT = 20
+DEFAULT_RECENT_COUNT = 10
 
 
 def parse_start_at(value: str | int | float) -> int:
