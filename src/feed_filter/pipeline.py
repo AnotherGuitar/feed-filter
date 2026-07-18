@@ -183,7 +183,17 @@ def filter_channel(
 def write_combined_feed(
     all_kept: list, output: str, self_url: str | None = None, title: str = "Combined"
 ) -> None:
-    """Merge kept entries from multiple channels into one Atom feed, newest first."""
+    """Merge kept entries from multiple channels into one Atom feed, newest first.
+
+    Re-runs the same-day disambiguation across the merged set: different
+    channels can independently collide on the same calendar date, which the
+    per-channel disambiguation in filter_channel can't see. Entries are
+    sorted by their existing published value first so staggering reflects
+    true cross-channel recency, not just each channel's own list order.
+    """
+    all_kept = sorted(all_kept, key=lambda e: e.get("published") or "", reverse=True)
+    _disambiguate_same_day_timestamps(all_kept)
+
     generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
     tree = build_combined_feed(all_kept, generated_at, self_url=self_url, title=title)
 
