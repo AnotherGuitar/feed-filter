@@ -60,11 +60,29 @@ else
             echo "/combined-${topic}.xml  https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/${combined_output}?v=${ts}  302" >> netlify-redirect/_redirects
         fi
     done
-    git add netlify-redirect/_redirects
+    # Test: also host the actual content directly on Netlify (not just a
+    # redirect to GitHub's text/plain raw files) with the correct
+    # application/atom+xml Content-Type, to see if that changes Feedly's
+    # refresh behavior for an existing subscription. Parallel to the
+    # redirect URLs above, not a replacement, so both can be compared.
+    : > netlify-redirect/_headers
+    for config in configs/*.yaml; do
+        topic="$(basename "$config" .yaml)"
+        combined_output="$(python3 -c "import yaml; print(yaml.safe_load(open('$config')).get('combined_output') or '')")"
+        if [ -n "$combined_output" ]; then
+            cp "$combined_output" "netlify-redirect/hosted-${topic}.xml"
+            {
+                echo "/hosted-${topic}.xml"
+                echo "  Content-Type: application/atom+xml; charset=utf-8"
+            } >> netlify-redirect/_headers
+        fi
+    done
+
+    git add netlify-redirect/
     if git diff --cached --quiet; then
-        echo "No redirect change to commit"
+        echo "No Netlify content change to commit"
     else
-        git commit -m "Bump Netlify redirect cache-busting version"
+        git commit -m "Bump Netlify redirect version, refresh hosted content copies"
         git push
     fi
     (cd netlify-redirect && /Users/Chris/.nvm/versions/node/v22.19.0/bin/netlify deploy --prod --dir=.)
