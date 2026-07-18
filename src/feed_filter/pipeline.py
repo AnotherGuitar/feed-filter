@@ -34,6 +34,11 @@ def _apply_start_at(video_url: str, start_at_seconds: int) -> str:
     return f"{video_url}{separator}t={start_at_seconds}s"
 
 
+def _title_excluded(title: str, exclude_patterns: list) -> bool:
+    lowered = title.lower()
+    return any(pattern in lowered for pattern in exclude_patterns)
+
+
 def filter_channel(
     channel: str,
     min_minutes: float,
@@ -41,6 +46,7 @@ def filter_channel(
     self_url: str | None = None,
     recent_count: int = DEFAULT_RECENT_COUNT,
     start_at: str | int | float | None = None,
+    exclude_title_contains: list | None = None,
 ) -> list:
     """Filter a channel/tab's recent videos by minimum duration and write it to `output`.
 
@@ -54,24 +60,43 @@ def filter_channel(
     Only affects the entry's link - duration/live_status checks still use the
     video's actual full length.
 
+    exclude_title_contains skips any video whose title contains one of these
+    substrings (case-insensitive), e.g. a recurring segment you don't want.
+    Checked cheaply against the channel listing's title before the expensive
+    per-video metadata fetch, then re-checked against that fetch's title for
+    accuracy.
+
     Returns the list of kept entries (each tagged with "_duration_seconds" and
     "_source_title"), so callers can merge them into a combined feed.
     """
     start_at_seconds = parse_start_at(start_at) if start_at else 0
+    exclude_patterns = [p.lower() for p in (exclude_title_contains or [])]
 
     channel_info = list_recent_videos(channel, limit=recent_count)
     channel_title = channel_info["channel_title"]
     channel_link = channel_info["channel_link"]
-    video_urls = channel_info["video_urls"]
-    logger.info("listed channel videos", channel=channel, video_count=len(video_urls))
+    videos = channel_info["videos"]
+    logger.info("listed channel videos", channel=channel, video_count=len(videos))
 
     min_seconds = min_minutes * 60
     kept = []
-    for video_url in video_urls:
+    for video in videos:
+        video_url = video["url"]
+
+        if exclude_patterns and _title_excluded(video.get("title", ""), exclude_patterns):
+            logger.info("skipping video, title excluded", url=video_url, title=video.get("title"))
+            continue
+
         try:
             metadata = fetch_video_metadata(video_url)
         except Exception as exc:  # noqa: BLE001 - a single bad video shouldn't fail the whole run
             logger.warning("skipping video, metadata lookup failed", url=video_url, error=str(exc))
+            continue
+
+        if exclude_patterns and _title_excluded(metadata.get("title") or "", exclude_patterns):
+            logger.info(
+                "skipping video, title excluded", url=video_url, title=metadata.get("title")
+            )
             continue
 
         live_status = metadata["live_status"]
@@ -122,7 +147,7 @@ def filter_channel(
     logger.info(
         "wrote filtered feed",
         kept=len(kept),
-        total=len(video_urls),
+        total=len(videos),
         output=str(output_path),
     )
     return kept

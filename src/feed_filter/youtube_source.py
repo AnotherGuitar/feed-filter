@@ -38,7 +38,10 @@ def list_recent_videos(channel_url: str, limit: int = 20, retries: int = 5) -> d
     """List a channel/tab's most recent videos, newest first.
 
     Respects whatever tab the URL points to (videos, streams, shorts, ...).
-    Returns {"channel_title", "channel_link", "video_urls": [str, ...]}.
+    Returns {"channel_title", "channel_link", "videos": [{"url", "title"}, ...]}.
+    The title here comes from the flat listing (cheap, one request for the
+    whole channel) - good enough for pre-filtering before the expensive
+    per-video metadata fetch, but not authoritative (see fetch_video_metadata).
     """
     url = normalize_channel_url(channel_url)
     opts = {**YDL_BASE_OPTS, "extract_flat": "in_playlist", "playlistend": limit}
@@ -53,7 +56,9 @@ def list_recent_videos(channel_url: str, limit: int = 20, retries: int = 5) -> d
             return {
                 "channel_title": info.get("channel") or info.get("uploader") or url,
                 "channel_link": info.get("channel_url") or info.get("uploader_url") or url,
-                "video_urls": [e["url"] for e in entries if e.get("url")],
+                "videos": [
+                    {"url": e["url"], "title": e.get("title", "")} for e in entries if e.get("url")
+                ],
             }
         except Exception as exc:  # noqa: BLE001 - broad on purpose, we retry on any failure
             last_error = exc

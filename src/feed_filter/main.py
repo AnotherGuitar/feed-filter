@@ -75,6 +75,7 @@ def run_config(config_path: str, summary_path: str = DEFAULT_SUMMARY_PATH) -> in
                     self_url=entry.get("self_url"),
                     recent_count=entry.get("recent_count", DEFAULT_RECENT_COUNT),
                     start_at=entry.get("start_at"),
+                    exclude_title_contains=entry.get("exclude_title_contains"),
                 )
             except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
                 logger.warning(
@@ -200,6 +201,15 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--exclude-title-contains",
+        action="append",
+        default=None,
+        help=(
+            "Skip any video whose title contains this substring "
+            "(case-insensitive). Repeat the flag for multiple substrings."
+        ),
+    )
+    parser.add_argument(
         "--ping-hub",
         action="store_true",
         help=(
@@ -226,6 +236,7 @@ def main() -> None:
         self_url=args.self_url,
         recent_count=args.recent_count,
         start_at=args.start_at,
+        exclude_title_contains=args.exclude_title_contains,
     )
 
 
