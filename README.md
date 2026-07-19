@@ -212,8 +212,11 @@ $DOCKER build -f Dockerfile.nas -t feed-filter-nas:latest .
 
 [scripts/update_and_publish_nas.sh](scripts/update_and_publish_nas.sh) is the
 NAS-adapted equivalent of
-[scripts/update_and_publish.sh](scripts/update_and_publish.sh) (which is the
-older macOS/launchd version, still used on the laptop as a fallback). It:
+[scripts/update_and_publish.sh](scripts/update_and_publish.sh) (the older
+macOS/launchd version - the laptop's launchd job is now unloaded, but the
+plist at `~/Library/LaunchAgents/com.feedfilter.updatefeeds.plist` is still
+installed as a manual fallback; re-enable with `launchctl load` on that path
+if the NAS is ever down). The NAS script:
 
 1. `git pull --rebase origin main` - picks up anything pushed from elsewhere
    first, so it isn't building on a stale base.
@@ -224,6 +227,11 @@ older macOS/launchd version, still used on the laptop as a fallback). It:
 
 It intentionally drops macOS-only bits from the original script
 (`terminal-notifier`, the hardcoded `/usr/local/bin/uv` path).
+
+Only one machine should be pushing at a time - running both the laptop and
+NAS jobs concurrently risks push races (the rebase step resolves most of
+them automatically, but not always; this is why the laptop job is disabled
+rather than left running alongside the NAS).
 
 ### GitHub credential (PAT)
 
@@ -253,19 +261,50 @@ The runner script reads it as an environment variable at push time
 (`https://x-access-token:${GITHUB_TOKEN}@github.com/...`) - it's never
 written into `.git/config` or any file inside the repo itself.
 
-### Running it
+### Scheduling: a self-contained cron container
+
+QNAP's Task Scheduler UI wasn't present in Control Panel on this NAS/QTS
+build, and editing the system crontab (`/etc/config/crontab`) directly
+requires root - `karate` is in the `administrators` group but that only
+grants read access to that file (owner `admin`, uid 0), and `sudo` needs an
+interactive password we don't want to script around.
+
+Instead, the container runs its own scheduler and stays up permanently:
+
+- [scripts/nas-crontab](scripts/nas-crontab) - a standard crontab file, read
+  by [supercronic](https://github.com/aptible/supercronic) (a static,
+  dependency-free cron replacement built for containers - Debian's `cron`
+  package pulls in `systemd`, whose postinst script fails when it isn't
+  PID 1). Currently: `0 2,8,14,20 * * *`, matching the old launchd cadence.
+- [scripts/nas-entrypoint.sh](scripts/nas-entrypoint.sh) - the image's `CMD`,
+  just execs `supercronic` against that crontab file.
+- supercronic forwards its own process environment (set via `docker run
+  --env-file`, i.e. `GITHUB_TOKEN`) to every job it runs, so no secret ever
+  needs to be written into a file inside the container or the repo.
+
+Start it once (survives NAS reboots via `--restart unless-stopped`, since
+Container Station's Docker daemon itself starts on boot):
 
 ```bash
 DOCKER=/share/CACHEDEV1_DATA/.qpkg/container-station/bin/docker
-$DOCKER run --rm \
+$DOCKER run -d --name feed-filter-scheduler --restart unless-stopped \
   --env-file /share/Container/feed-filter-secrets/github_token.env \
   -v /share/Container/feed-filter:/repo \
   feed-filter-nas:latest
 ```
 
-This is what's wired up in QNAP Task Scheduler to run on a recurring
-schedule (see Control Panel -> Task Scheduler on the NAS for the exact
-cadence currently configured).
+Check on it:
+
+```bash
+$DOCKER logs feed-filter-scheduler       # supercronic startup + job output
+$DOCKER ps --filter name=feed-filter-scheduler
+```
+
+To change the schedule: edit `scripts/nas-crontab`, `git pull` (or re-sync)
+on the NAS, then `docker restart feed-filter-scheduler` - no image rebuild
+needed, since the crontab file is bind-mounted along with the rest of the
+repo. A rebuild (`docker build -f Dockerfile.nas ...`) is only needed after
+changing `Dockerfile.nas` itself (e.g. bumping the supercronic version).
 
 ### SSH access to the NAS
 
