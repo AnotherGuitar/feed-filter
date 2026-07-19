@@ -1,9 +1,9 @@
-# Installed into /etc/cron.d/ by scripts/nas-entrypoint.sh inside the
+# Read by supercronic (see scripts/nas-entrypoint.sh) inside the
 # feed-filter-nas container. Matches the old macOS launchd schedule
 # (8am/2pm/8pm/2am). GITHUB_TOKEN is intentionally NOT set here - this file
-# is bind-mounted straight from the (public) git repo, so the token is
-# sourced from /etc/environment instead, which the entrypoint writes fresh
-# to the container's own filesystem at startup.
+# is bind-mounted straight from the (public) git repo. supercronic forwards
+# its own process environment (set by `docker run --env-file`) to every job
+# it runs, so the token reaches the script without ever touching this file.
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-0 2,8,14,20 * * * root . /etc/environment; bash /repo/scripts/update_and_publish_nas.sh >> /repo/logs/nas-cron.log 2>&1
+0 2,8,14,20 * * * bash /repo/scripts/update_and_publish_nas.sh >> /repo/logs/nas-cron.log 2>&1

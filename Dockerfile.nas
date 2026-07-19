@@ -6,8 +6,17 @@
 FROM python:3.13-slim
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git ca-certificates cron \
+    && apt-get install -y --no-install-recommends git ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Debian's `cron` package pulls in systemd (for sysusers integration), whose
+# postinst script fails inside a container where systemd isn't PID 1.
+# supercronic is a cron replacement built specifically to avoid that - a
+# single static binary, no dependencies.
+ARG SUPERCRONIC_VERSION=v0.2.47
+RUN curl -fsSLo /usr/local/bin/supercronic \
+      "https://github.com/aptible/supercronic/releases/download/${SUPERCRONIC_VERSION}/supercronic-linux-amd64" \
+    && chmod +x /usr/local/bin/supercronic
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
