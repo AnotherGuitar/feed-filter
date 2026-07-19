@@ -1,0 +1,53 @@
+# See configs/politics.yaml for full field documentation.
+channels:
+  - name: bookoverflowpod-main
+    url: "https://www.youtube.com/@BookOverflowPod/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "BOP"
+    output: docs/bookoverflowpod-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/bookoverflowpod-main.xml"
+
+  - name: datadrivennyc-main
+    url: "https://www.youtube.com/@DataDrivenNYC/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "DDNYC"
+    output: docs/datadrivennyc-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/datadrivennyc-main.xml"
+
+  - name: rossmanngroup-main
+    url: "https://www.youtube.com/@rossmanngroup/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "ROSSMANN"
+    output: docs/rossmanngroup-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/rossmanngroup-main.xml"
+
+  - name: theprimeagenhighlights-main
+    url: "https://www.youtube.com/@ThePrimeagenHighlights/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "PRIMEHL"
+    output: docs/theprimeagenhighlights-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/theprimeagenhighlights-main.xml"
+
+  - name: theprimetimeagen-main
+    url: "https://www.youtube.com/@ThePrimeTimeagen/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "PRIME"
+    output: docs/theprimetimeagen-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/theprimetimeagen-main.xml"
+
+  - name: techbroslaurenmary-streams
+    url: "https://www.youtube.com/@techbroslaurenmary/streams"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "TECHBROS"
+    output: docs/techbroslaurenmary-streams.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/techbroslaurenmary-streams.xml"
+
+combined_output: docs/combined-tech.xml
+combined_self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-tech.xml"
+combined_title: "Combined - Tech"

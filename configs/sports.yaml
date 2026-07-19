@@ -25,6 +25,22 @@ channels:
     output: docs/foulterritory-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/foulterritory-main.xml"
 
+  - name: intuitivetennis-main
+    url: "https://www.youtube.com/@IntuitiveTennis/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "ITENNIS"
+    output: docs/intuitivetennis-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/intuitivetennis-main.xml"
+
+  - name: intuitivetennis-streams
+    url: "https://www.youtube.com/@IntuitiveTennis/streams"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "ITENNIS"
+    output: docs/intuitivetennis-streams.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/intuitivetennis-streams.xml"
+
   - name: nflonnbc-main
     url: "https://www.youtube.com/@NFLonNBC/videos"
     min_minutes: 1
@@ -76,6 +92,14 @@ channels:
     title_prefix: "BOMANI"
     output: docs/righttimebomani-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/righttimebomani-main.xml"
+
+  - name: servedpodcast-main
+    url: "https://www.youtube.com/@ServedPodcast/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "SERVED"
+    output: docs/servedpodcast-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/servedpodcast-main.xml"
 
   - name: sportsgossipshow-main
     url: "https://www.youtube.com/@SportsGossipShow/videos"
