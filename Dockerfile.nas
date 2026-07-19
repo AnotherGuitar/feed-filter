@@ -6,7 +6,7 @@
 FROM python:3.13-slim
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git ca-certificates \
+    && apt-get install -y --no-install-recommends git ca-certificates cron \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
@@ -17,4 +17,9 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /repo
 
-CMD ["bash", "scripts/update_and_publish_nas.sh"]
+# No QNAP Task Scheduler / host cron access is assumed - this container runs
+# long-lived (`docker run -d --restart unless-stopped`) with its own crond
+# inside, reading its schedule from scripts/nas-crontab (bind-mounted along
+# with the rest of the repo, so changing the schedule is just an edit + a
+# container restart, no rebuild).
+CMD ["bash", "scripts/nas-entrypoint.sh"]
