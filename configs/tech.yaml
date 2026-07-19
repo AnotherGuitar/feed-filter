@@ -4,7 +4,7 @@ channels:
     url: "https://www.youtube.com/@BookOverflowPod/videos"
     min_minutes: 5
     recent_count: 30
-    title_prefix: "BOP"
+    title_prefix: "BO"
     output: docs/bookoverflowpod-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/bookoverflowpod-main.xml"
 
@@ -12,7 +12,7 @@ channels:
     url: "https://www.youtube.com/@DataDrivenNYC/videos"
     min_minutes: 5
     recent_count: 30
-    title_prefix: "DDNYC"
+    title_prefix: "MAD"
     output: docs/datadrivennyc-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/datadrivennyc-main.xml"
 
@@ -28,7 +28,7 @@ channels:
     url: "https://www.youtube.com/@ThePrimeagenHighlights/videos"
     min_minutes: 5
     recent_count: 30
-    title_prefix: "PRIMEHL"
+    title_prefix: "PRIME"
     output: docs/theprimeagenhighlights-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/theprimeagenhighlights-main.xml"
 
