@@ -44,7 +44,26 @@ if git diff --cached --quiet; then
     echo "No changes to commit"
 else
     git commit -m "Update filtered feeds"
-    git push "https://x-access-token:${GITHUB_TOKEN}@github.com/AnotherGuitar/feed-filter.git" HEAD:main
+
+    # The run above takes long enough (~15-20 min across every channel) that
+    # something else (e.g. the laptop) can push to main in the meantime,
+    # rejecting this push as non-fast-forward. Re-pull and retry a few times
+    # rather than leaving the commit stranded unpushed until the next
+    # scheduled run.
+    pushed=0
+    for attempt in 1 2 3; do
+        if git push "https://x-access-token:${GITHUB_TOKEN}@github.com/AnotherGuitar/feed-filter.git" HEAD:main; then
+            pushed=1
+            break
+        fi
+        echo "push rejected (attempt ${attempt}/3) - rebasing onto latest origin/main and retrying"
+        git pull --rebase origin main
+    done
+
+    if [ "$pushed" -ne 1 ]; then
+        echo "failed to push after retries" >&2
+        exit 1
+    fi
 
     # Ping the WebSub hub now that the new content is actually live, so
     # hub-aware readers (e.g. Feedly) get it without waiting on their own
