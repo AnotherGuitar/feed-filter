@@ -76,6 +76,7 @@ def run_config(config_path: str, summary_path: str = DEFAULT_SUMMARY_PATH) -> in
                     recent_count=entry.get("recent_count", DEFAULT_RECENT_COUNT),
                     start_at=entry.get("start_at"),
                     exclude_title_contains=entry.get("exclude_title_contains"),
+                    title_prefix=entry.get("title_prefix"),
                 )
             except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
                 logger.warning(
@@ -210,6 +211,11 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--title-prefix",
+        default=None,
+        help=('Prepend this to every kept entry\'s title as "[PREFIX] Title" (optional)'),
+    )
+    parser.add_argument(
         "--ping-hub",
         action="store_true",
         help=(
@@ -237,6 +243,7 @@ def main() -> None:
         recent_count=args.recent_count,
         start_at=args.start_at,
         exclude_title_contains=args.exclude_title_contains,
+        title_prefix=args.title_prefix,
     )
 
 

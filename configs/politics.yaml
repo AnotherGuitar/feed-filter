@@ -30,11 +30,15 @@
 # Streams still live, not yet started, or still being processed after ending
 # are always skipped, regardless of min_minutes, since their duration isn't
 # final yet. Only fully finished streams pass through to the duration check.
+#
+# `title_prefix` (optional) is prepended to every kept entry's title as
+# "[PREFIX] Title", to tell channels apart at a glance in the combined feed.
 channels:
   - name: declineandfall-streams
     url: "https://www.youtube.com/@DeclineAndFall-d5k/streams"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "D&F"
     output: docs/declineandfall-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/declineandfall-streams.xml"
 
@@ -42,6 +46,7 @@ channels:
     url: "https://www.youtube.com/@TheElectronicIntifada/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "TEI"
     output: docs/theelectronicintifada-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/theelectronicintifada-main.xml"
 
@@ -49,6 +54,7 @@ channels:
     url: "https://www.youtube.com/@thegrayzone7996/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "GZ"
     output: docs/thegrayzone-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/thegrayzone-main.xml"
 
@@ -56,6 +62,7 @@ channels:
     url: "https://www.youtube.com/@GeopoliticalEconomyReport/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "GEO"
     output: docs/geopoliticaleconomyreport-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/geopoliticaleconomyreport-main.xml"
 
@@ -64,6 +71,7 @@ channels:
     min_minutes: 5
     recent_count: 30
     start_at: "1:08"
+    title_prefix: "NAP"
     output: docs/judgingfreedom-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/judgingfreedom-streams.xml"
 
@@ -71,6 +79,7 @@ channels:
     url: "https://www.youtube.com/@Lunaoi/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "LOI"
     output: docs/lunaoi-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/lunaoi-main.xml"
 
@@ -78,6 +87,7 @@ channels:
     url: "https://www.youtube.com/@SyrianaAnalysis/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "SYR"
     output: docs/syrianaanalysis-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/syrianaanalysis-main.xml"
 
@@ -85,8 +95,25 @@ channels:
     url: "https://www.youtube.com/@SyrianaAnalysis/streams"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "SYR"
     output: docs/syrianaanalysis-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/syrianaanalysis-streams.xml"
+
+  - name: badempanada-main
+    url: "https://www.youtube.com/@BadEmpanada/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "BE"
+    output: docs/badempanada-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/badempanada-main.xml"
+
+  - name: badempanadalive-main
+    url: "https://www.youtube.com/@BadEmpanadaLive/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "BE"
+    output: docs/badempanadalive-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/badempanadalive-main.xml"
 
 # Merges every channel in this file into a single feed, newest first, so you
 # only need to give Feedly (or add more politics channels) one URL.

@@ -4,13 +4,31 @@ channels:
     url: "https://www.youtube.com/@JeffRauseo/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "JR"
     output: docs/jeffrauseo-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/jeffrauseo-main.xml"
+
+  - name: movieknights-main
+    url: "https://www.youtube.com/@MovieKnights/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "MK"
+    output: docs/movieknights-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/movieknights-main.xml"
+
+  - name: movieknights-streams
+    url: "https://www.youtube.com/@MovieKnights/streams"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "MK"
+    output: docs/movieknights-streams.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/movieknights-streams.xml"
 
   - name: therearetoomanymovies-main
     url: "https://www.youtube.com/@ThereAreTooManyMovies/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "TATMM"
     output: docs/therearetoomanymovies-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/therearetoomanymovies-main.xml"
 

@@ -13,6 +13,7 @@ channels:
     url: "https://www.youtube.com/@ChinaDriven/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "CD"
     output: docs/chinadriven-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/chinadriven-main.xml"
 
@@ -20,6 +21,7 @@ channels:
     url: "https://www.youtube.com/@foulterritoryshow/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "FT"
     output: docs/foulterritory-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/foulterritory-main.xml"
 
@@ -29,6 +31,7 @@ channels:
     recent_count: 30
     exclude_title_contains:
       - "rotoworld football show"
+    title_prefix: "NFLNBC"
     output: docs/nflonnbc-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/nflonnbc-main.xml"
 
@@ -38,6 +41,7 @@ channels:
     recent_count: 30
     exclude_title_contains:
       - "rotoworld football show"
+    title_prefix: "NFLNBC"
     output: docs/nflonnbc-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/nflonnbc-streams.xml"
 
@@ -45,6 +49,7 @@ channels:
     url: "https://www.youtube.com/@PabloTorreFindsOut/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "PTFO"
     output: docs/pablotorrefindsout-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/pablotorrefindsout-main.xml"
 
@@ -52,6 +57,7 @@ channels:
     url: "https://www.youtube.com/@RightsToRickySanchez/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "RTRS"
     output: docs/rightstorickysanchez-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/rightstorickysanchez-main.xml"
 
@@ -59,6 +65,7 @@ channels:
     url: "https://www.youtube.com/@RightsToRickySanchez/streams"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "RTRS"
     output: docs/rightstorickysanchez-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/rightstorickysanchez-streams.xml"
 
@@ -66,6 +73,7 @@ channels:
     url: "https://www.youtube.com/@righttimebomani/videos"
     min_minutes: 5
     recent_count: 30
+    title_prefix: "BOMANI"
     output: docs/righttimebomani-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/righttimebomani-main.xml"
 

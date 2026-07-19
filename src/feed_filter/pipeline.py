@@ -72,6 +72,7 @@ def filter_channel(
     recent_count: int = DEFAULT_RECENT_COUNT,
     start_at: str | int | float | None = None,
     exclude_title_contains: list | None = None,
+    title_prefix: str | None = None,
 ) -> list:
     """Filter a channel/tab's recent videos by minimum duration and write it to `output`.
 
@@ -90,6 +91,11 @@ def filter_channel(
     Checked cheaply against the channel listing's title before the expensive
     per-video metadata fetch, then re-checked against that fetch's title for
     accuracy.
+
+    title_prefix (e.g. "RTRS") is prepended to every kept entry's title as
+    "[RTRS] Actual Title", useful to tell channels apart at a glance in a
+    combined feed. Applied after exclude_title_contains, so exclusion still
+    matches against the original YouTube title.
 
     Returns the list of kept entries (each tagged with "_duration_seconds" and
     "_source_title"), so callers can merge them into a combined feed.
@@ -148,9 +154,12 @@ def filter_channel(
         )
 
         if keep:
+            title = metadata.get("title", "")
+            if title_prefix:
+                title = f"[{title_prefix}] {title}"
             kept.append(
                 {
-                    "title": metadata.get("title", ""),
+                    "title": title,
                     "link": _apply_start_at(video_url, start_at_seconds),
                     "id": f"yt:video:{metadata.get('video_id')}",
                     "published": metadata.get("published"),
