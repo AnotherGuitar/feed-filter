@@ -83,3 +83,5 @@ docker-compose.override.yml
 
 # OS
 Thumbs.db
+
+/*.pdf
