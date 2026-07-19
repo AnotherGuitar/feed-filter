@@ -174,6 +174,107 @@ make type-check
 make pre-commit
 ```
 
+## NAS Automation (QNAP + Container Station)
+
+feed-filter runs on a schedule from a QNAP NAS (Container Station/Docker)
+rather than depending on a laptop being powered on. The pieces:
+
+### Repo location on the NAS
+
+The repo lives at `/share/Container/feed-filter` (the same share Container
+Station itself uses, `CACHEDEV1_DATA/Container`). Git isn't available on the
+bare QTS host OS, so all git operations (pull/commit/push) happen *inside*
+the runner container, not on the host shell.
+
+The real `docker` CLI on QTS isn't on `$PATH` - it lives at:
+
+```
+/share/CACHEDEV1_DATA/.qpkg/container-station/bin/docker
+```
+
+### Runner image
+
+[Dockerfile.nas](Dockerfile.nas) builds a small `python:3.13-slim` image with
+`git` and `uv` added. Unlike the main [Dockerfile](Dockerfile), it does
+**not** copy the app source in - the live repo checkout on the NAS share is
+bind-mounted at `/repo` when the container runs, so it always executes
+whatever's currently on disk with no rebuild step needed after a code change
+(just `git pull` on the NAS copy, or re-sync).
+
+Build it (from the NAS, in `/share/Container/feed-filter`):
+
+```bash
+DOCKER=/share/CACHEDEV1_DATA/.qpkg/container-station/bin/docker
+$DOCKER build -f Dockerfile.nas -t feed-filter-nas:latest .
+```
+
+### Runner script
+
+[scripts/update_and_publish_nas.sh](scripts/update_and_publish_nas.sh) is the
+NAS-adapted equivalent of
+[scripts/update_and_publish.sh](scripts/update_and_publish.sh) (which is the
+older macOS/launchd version, still used on the laptop as a fallback). It:
+
+1. `git pull --rebase origin main` - picks up anything pushed from elsewhere
+   first, so it isn't building on a stale base.
+2. Runs `feed-filter --config` for every `configs/*.yaml`.
+3. Commits and pushes any changed `docs/*.xml`, authenticating with a GitHub
+   token (see below) rather than SSH/stored credentials.
+4. Pings the WebSub hub for each config once the new content is live.
+
+It intentionally drops macOS-only bits from the original script
+(`terminal-notifier`, the hardcoded `/usr/local/bin/uv` path).
+
+### GitHub credential (PAT)
+
+The container needs push access. We use a **fine-grained GitHub personal
+access token**, scoped to just this repo:
+
+- Repository access: only `AnotherGuitar/feed-filter`
+- Permissions: **Contents: Read and write** (nothing else)
+- Created: 2026-07-18, 90-day expiration (~2026-10-16) - regenerate before
+  then via github.com/settings/personal-access-tokens, same scope, and
+  overwrite the file below.
+
+The token is **never stored in the repo or committed** - it lives outside the
+git working tree entirely, in a restricted-permission env file on the NAS:
+
+```
+/share/Container/feed-filter-secrets/github_token.env   (mode 600)
+```
+
+containing a single line:
+
+```
+GITHUB_TOKEN=github_pat_...
+```
+
+The runner script reads it as an environment variable at push time
+(`https://x-access-token:${GITHUB_TOKEN}@github.com/...`) - it's never
+written into `.git/config` or any file inside the repo itself.
+
+### Running it
+
+```bash
+DOCKER=/share/CACHEDEV1_DATA/.qpkg/container-station/bin/docker
+$DOCKER run --rm \
+  --env-file /share/Container/feed-filter-secrets/github_token.env \
+  -v /share/Container/feed-filter:/repo \
+  feed-filter-nas:latest
+```
+
+This is what's wired up in QNAP Task Scheduler to run on a recurring
+schedule (see Control Panel -> Task Scheduler on the NAS for the exact
+cadence currently configured).
+
+### SSH access to the NAS
+
+Passwordless SSH key auth is set up for the `karate` account (a member of
+the `administrators` group), from the Mac's `~/.ssh/id_ed25519_nasa` key,
+targeting `nasa.local`. The built-in `admin` account's password was lost at
+setup time; `karate` was used instead since it already had admin-group
+membership.
+
 ## Production Considerations
 
 When preparing for production:
