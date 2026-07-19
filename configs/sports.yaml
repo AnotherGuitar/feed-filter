@@ -85,6 +85,22 @@ channels:
     output: docs/sportsgossipshow-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/sportsgossipshow-main.xml"
 
+  - name: unfilteredsoccer-main
+    url: "https://www.youtube.com/@UnfilteredSoccer/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "UFS"
+    output: docs/unfilteredsoccer-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/unfilteredsoccer-main.xml"
+
+  - name: unfilteredsoccer-streams
+    url: "https://www.youtube.com/@UnfilteredSoccer/streams"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "UFS"
+    output: docs/unfilteredsoccer-streams.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/unfilteredsoccer-streams.xml"
+
 combined_output: docs/combined-sports.xml
 combined_self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/combined-sports.xml"
 combined_title: "Combined - Sportage"
