@@ -74,6 +74,14 @@ channels:
     output: docs/deepdiveperspective-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/deepdiveperspective-main.xml"
 
+  - name: theduran-main
+    url: "https://www.youtube.com/@TheDuran/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "Duran"
+    output: docs/theduran-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/theduran-main.xml"
+
   - name: theeastisapodcast-main
     url: "https://www.youtube.com/@theeastisapodcast/videos"
     min_minutes: 5
@@ -105,6 +113,14 @@ channels:
     title_prefix: "GZ"
     output: docs/thegrayzone-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/thegrayzone-main.xml"
+
+  - name: gdfofficial-main
+    url: "https://www.youtube.com/@GDFofficial/videos"
+    min_minutes: 5
+    recent_count: 30
+    title_prefix: "GDF"
+    output: docs/gdfofficial-main.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/gdfofficial-main.xml"
 
   - name: geopoliticaleconomyreport-main
     url: "https://www.youtube.com/@GeopoliticalEconomyReport/videos"
