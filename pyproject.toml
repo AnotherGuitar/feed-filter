@@ -10,6 +10,7 @@ dependencies = [
     "structlog>=24.0.0",
     "yt-dlp>=2025.10.0",
     "pyyaml>=6.0.0",
+    "feedparser>=6.0.12",
 ]
 
 [project.optional-dependencies]
@@ -77,6 +78,10 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "feedparser.*"
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "tests.*"

@@ -16,6 +16,30 @@ channels:
     output: docs/datadrivennyc-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/datadrivennyc-main.xml"
 
+  - name: geohot-blog
+    url: "https://geohot.github.io/blog/feed.xml"
+    type: rss
+    recent_count: 30
+    title_prefix: "GeoHot"
+    output: docs/geohot-blog.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/geohot-blog.xml"
+
+  - name: hermittech-blog
+    url: "https://blog.hermit-tech.net/rss/"
+    type: rss
+    recent_count: 30
+    title_prefix: "Hermit"
+    output: docs/hermittech-blog.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/hermittech-blog.xml"
+
+  - name: ludic-blog
+    url: "https://ludic.mataroa.blog/rss/"
+    type: rss
+    recent_count: 30
+    title_prefix: "Hermit"
+    output: docs/ludic-blog.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/ludic-blog.xml"
+
   - name: theprimeagenhighlights-main
     url: "https://www.youtube.com/@ThePrimeagenHighlights/videos"
     min_minutes: 5
@@ -31,6 +55,14 @@ channels:
     title_prefix: "PRIME"
     output: docs/theprimetimeagen-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/theprimetimeagen-main.xml"
+
+  - name: seangoedecke-blog
+    url: "https://www.seangoedecke.com/rss.xml"
+    type: rss
+    recent_count: 30
+    title_prefix: "Goedecke"
+    output: docs/seangoedecke-blog.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/seangoedecke-blog.xml"
 
   - name: techbroslaurenmary-streams
     url: "https://www.youtube.com/@techbroslaurenmary/streams"

@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from feed_filter.blog_source import list_recent_entries
 from feed_filter.feed_builder import build_combined_feed, build_filtered_feed
 from feed_filter.logger import get_logger
 from feed_filter.youtube_source import fetch_video_metadata, list_recent_videos
@@ -168,6 +169,7 @@ def filter_channel(
                     "thumbnail_url": metadata.get("thumbnail"),
                     "_duration_seconds": duration,
                     "_source_title": channel_title,
+                    "_source_type": "youtube",
                 }
             )
 
@@ -184,6 +186,72 @@ def filter_channel(
         "wrote filtered feed",
         kept=len(kept),
         total=len(videos),
+        output=str(output_path),
+    )
+    return kept
+
+
+def filter_blog_feed(
+    feed_url: str,
+    output: str,
+    self_url: str | None = None,
+    recent_count: int = DEFAULT_RECENT_COUNT,
+    exclude_title_contains: list | None = None,
+    title_prefix: str | None = None,
+) -> list:
+    """Fetch a blog's RSS/Atom feed and republish its most recent entries.
+
+    Unlike filter_channel, there's no duration/live-status concept here -
+    every fetched entry is kept (subject to exclude_title_contains), so this
+    is really just title_prefix + normalization to let non-YouTube sources
+    merge into the same combined feed.
+
+    Returns the list of kept entries (each tagged with "_source_type": "rss"
+    and "_source_title"), so callers can merge them into a combined feed.
+    """
+    exclude_patterns = [p.lower() for p in (exclude_title_contains or [])]
+
+    feed_info = list_recent_entries(feed_url, limit=recent_count)
+    feed_title = feed_info["feed_title"]
+    feed_link = feed_info["feed_link"]
+    entries = feed_info["entries"]
+
+    kept = []
+    for entry in entries:
+        title = entry.get("title", "")
+        if exclude_patterns and _title_excluded(title, exclude_patterns):
+            logger.info("skipping entry, title excluded", url=entry.get("link"), title=title)
+            continue
+
+        if title_prefix:
+            title = f"[{title_prefix}] {title}"
+
+        kept.append(
+            {
+                "title": title,
+                "link": entry.get("link", ""),
+                "id": entry.get("id") or entry.get("link", ""),
+                "published": entry.get("published"),
+                "updated": entry.get("published"),
+                "summary": entry.get("summary"),
+                "_source_title": feed_title,
+                "_source_type": "rss",
+            }
+        )
+
+    _disambiguate_same_day_timestamps(kept)
+
+    generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    tree = build_filtered_feed(feed_title, feed_link, kept, generated_at, self_url=self_url)
+
+    output_path = Path(output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    tree.write(output_path, encoding="utf-8", xml_declaration=True)
+
+    logger.info(
+        "wrote blog feed",
+        kept=len(kept),
+        total=len(entries),
         output=str(output_path),
     )
     return kept

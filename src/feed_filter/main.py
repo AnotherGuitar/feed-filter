@@ -22,7 +22,12 @@ from pathlib import Path
 import yaml
 
 from feed_filter.logger import get_logger
-from feed_filter.pipeline import DEFAULT_RECENT_COUNT, filter_channel, write_combined_feed
+from feed_filter.pipeline import (
+    DEFAULT_RECENT_COUNT,
+    filter_blog_feed,
+    filter_channel,
+    write_combined_feed,
+)
 from feed_filter.websub import ping_hub
 
 logger = get_logger(__name__)
@@ -67,17 +72,30 @@ def run_config(config_path: str, summary_path: str = DEFAULT_SUMMARY_PATH) -> in
         still_pending = []
         for entry in pending:
             name = entry.get("name", entry.get("url"))
+            entry_type = entry.get("type", "youtube")
             try:
-                kept = filter_channel(
-                    channel=entry["url"],
-                    min_minutes=entry.get("min_minutes", 5.0),
-                    output=entry["output"],
-                    self_url=entry.get("self_url"),
-                    recent_count=entry.get("recent_count", DEFAULT_RECENT_COUNT),
-                    start_at=entry.get("start_at"),
-                    exclude_title_contains=entry.get("exclude_title_contains"),
-                    title_prefix=entry.get("title_prefix"),
-                )
+                if entry_type == "youtube":
+                    kept = filter_channel(
+                        channel=entry["url"],
+                        min_minutes=entry.get("min_minutes", 5.0),
+                        output=entry["output"],
+                        self_url=entry.get("self_url"),
+                        recent_count=entry.get("recent_count", DEFAULT_RECENT_COUNT),
+                        start_at=entry.get("start_at"),
+                        exclude_title_contains=entry.get("exclude_title_contains"),
+                        title_prefix=entry.get("title_prefix"),
+                    )
+                elif entry_type == "rss":
+                    kept = filter_blog_feed(
+                        feed_url=entry["url"],
+                        output=entry["output"],
+                        self_url=entry.get("self_url"),
+                        recent_count=entry.get("recent_count", DEFAULT_RECENT_COUNT),
+                        exclude_title_contains=entry.get("exclude_title_contains"),
+                        title_prefix=entry.get("title_prefix"),
+                    )
+                else:
+                    raise ValueError(f"unknown channel type: {entry_type}")
             except Exception as exc:  # noqa: BLE001 - one channel's failure shouldn't skip the rest
                 logger.warning(
                     "channel failed this pass, will retry later",
@@ -216,6 +234,16 @@ def main() -> None:
         help=('Prepend this to every kept entry\'s title as "[PREFIX] Title" (optional)'),
     )
     parser.add_argument(
+        "--type",
+        choices=["youtube", "rss"],
+        default="youtube",
+        help=(
+            "Source type for the single-source mode's positional argument: "
+            "a YouTube channel/tab URL, or an RSS/Atom blog feed URL "
+            "(default: youtube)"
+        ),
+    )
+    parser.add_argument(
         "--ping-hub",
         action="store_true",
         help=(
@@ -235,16 +263,28 @@ def main() -> None:
     if not args.channel:
         parser.error("channel is required unless --config is given")
 
-    filter_channel(
-        channel=args.channel,
-        min_minutes=args.min_minutes,
-        output=args.output,
-        self_url=args.self_url,
-        recent_count=args.recent_count,
-        start_at=args.start_at,
-        exclude_title_contains=args.exclude_title_contains,
-        title_prefix=args.title_prefix,
-    )
+    if args.type == "youtube":
+        filter_channel(
+            channel=args.channel,
+            min_minutes=args.min_minutes,
+            output=args.output,
+            self_url=args.self_url,
+            recent_count=args.recent_count,
+            start_at=args.start_at,
+            exclude_title_contains=args.exclude_title_contains,
+            title_prefix=args.title_prefix,
+        )
+    elif args.type == "rss":
+        filter_blog_feed(
+            feed_url=args.channel,
+            output=args.output,
+            self_url=args.self_url,
+            recent_count=args.recent_count,
+            exclude_title_contains=args.exclude_title_contains,
+            title_prefix=args.title_prefix,
+        )
+    else:
+        parser.error(f"unknown --type: {args.type}")
 
 
 if __name__ == "__main__":

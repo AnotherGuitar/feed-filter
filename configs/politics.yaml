@@ -33,6 +33,11 @@
 #
 # `title_prefix` (optional) is prepended to every kept entry's title as
 # "[PREFIX] Title", to tell channels apart at a glance in the combined feed.
+#
+# `type` (optional, default "youtube") set to "rss" makes `url` a plain
+# RSS/Atom blog feed instead of a YouTube channel/tab - every entry is kept
+# (subject to exclude_title_contains), since there's no duration/live-status
+# concept for a blog post. `min_minutes` and `start_at` don't apply.
 channels:
   - name: badempanada-main
     url: "https://www.youtube.com/@BadEmpanada/videos"

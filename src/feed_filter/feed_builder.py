@@ -18,10 +18,15 @@ ET.register_namespace("media", MEDIA_NS)
 def _build_entry_element(
     entry: dict, generated_at: str, include_author: bool = False
 ) -> ET.Element:
-    """Build a single <entry>. entry must carry a "_duration_seconds" key.
+    """Build a single <entry>.
+
+    entry's "_source_type" is either "youtube" or "rss". youtube entries must
+    also carry "_duration_seconds" (accessed directly below, so a missing key
+    raises rather than silently omitting it) - rss entries have no duration
+    concept and never render that element.
 
     If include_author is set, entry's "_source_title" (the channel it came from)
-    is added as an <author>, so a reader merging multiple channels can tell them
+    is added as an <author>, so a reader merging multiple sources can tell them
     apart.
     """
     entry_el = ET.Element(f"{{{ATOM_NS}}}entry")
@@ -69,8 +74,9 @@ def _build_entry_element(
         e_content.set("type", "html")
         e_content.text = body_html
 
-    duration_el = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}duration_seconds")
-    duration_el.text = str(entry["_duration_seconds"])
+    if entry.get("_source_type") == "youtube":
+        duration_el = ET.SubElement(entry_el, f"{{{MEDIA_NS}}}duration_seconds")
+        duration_el.text = str(entry["_duration_seconds"])
 
     return entry_el
 
