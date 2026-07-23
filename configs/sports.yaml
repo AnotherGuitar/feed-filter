@@ -13,6 +13,8 @@ channels:
     url: "https://www.youtube.com/@BrodesMedia/videos"
     min_minutes: 5
     recent_count: 30
+    exclude_title_contains:
+      - "brodes clips"
     title_prefix: "BRODES"
     output: docs/brodesmedia-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/brodesmedia-main.xml"
