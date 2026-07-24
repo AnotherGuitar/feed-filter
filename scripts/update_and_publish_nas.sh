@@ -17,6 +17,19 @@ mkdir -p logs
 # Prune logs older than 30 days so this directory doesn't grow forever.
 find logs -type f \( -name 'run-*.log' -o -name 'summary-*.txt' \) -mtime +30 -delete
 
+# Defensive: recover from a stuck rebase/merge left by a previous run that
+# hit a conflict and couldn't finish cleanly (e.g. two overlapping runs
+# racing to push at once) - otherwise every future run fails at this same
+# step forever, since git refuses to pull with one already in progress.
+if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+    echo "found a stuck rebase from a previous run - aborting it"
+    git rebase --abort || true
+fi
+if [ -f .git/MERGE_HEAD ]; then
+    echo "found a stuck merge from a previous run - aborting it"
+    git merge --abort || true
+fi
+
 # Pick up anything pushed from elsewhere (e.g. the laptop) before we start,
 # so we're not building on a stale base and don't create a needless conflict.
 git pull --rebase origin main
@@ -46,31 +59,25 @@ else
     git commit -m "Update filtered feeds"
 
     # The run above takes long enough (~15-20 min across every channel) that
-    # something else (e.g. the laptop) can push to main in the meantime,
-    # rejecting this push as non-fast-forward. Re-pull and retry a few times
-    # rather than leaving the commit stranded unpushed until the next
-    # scheduled run.
-    pushed=0
-    for attempt in 1 2 3; do
-        if git push "https://x-access-token:${GITHUB_TOKEN}@github.com/AnotherGuitar/feed-filter.git" HEAD:main; then
-            pushed=1
-            break
-        fi
-        echo "push rejected (attempt ${attempt}/3) - rebasing onto latest origin/main and retrying"
-        git pull --rebase origin main
-    done
-
-    if [ "$pushed" -ne 1 ]; then
-        echo "failed to push after retries" >&2
-        exit 1
+    # something else (e.g. the laptop, or an overlapping run) can push to
+    # main in the meantime, rejecting this push as non-fast-forward. docs/
+    # is pure regenerated output with no hand-edited content, so there's
+    # nothing to meaningfully merge - if we lost the race, just discard our
+    # redundant commit rather than rebasing (which can itself conflict and
+    # leave the repo stuck mid-rebase for every future run). The next
+    # scheduled run regenerates fresh anyway.
+    if git push "https://x-access-token:${GITHUB_TOKEN}@github.com/AnotherGuitar/feed-filter.git" HEAD:main; then
+        # Ping the WebSub hub now that the new content is actually live, so
+        # hub-aware readers (e.g. Feedly) get it without waiting on their own
+        # polling schedule.
+        for config in configs/*.yaml; do
+            uv run feed-filter --config "$config" --ping-hub
+        done
+    else
+        echo "push rejected - someone else published first; discarding this run's commit"
+        git fetch origin
+        git reset --hard origin/main
     fi
-
-    # Ping the WebSub hub now that the new content is actually live, so
-    # hub-aware readers (e.g. Feedly) get it without waiting on their own
-    # polling schedule.
-    for config in configs/*.yaml; do
-        uv run feed-filter --config "$config" --ping-hub
-    done
 fi
 
 exit "$overall_status"
