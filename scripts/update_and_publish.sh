@@ -3,6 +3,19 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Refuse to run if another invocation is already in progress - two processes
+# writing to the same working tree at once is a real hazard (see
+# update_and_publish_nas.sh, which hit exactly this with the NAS's own
+# scheduled runs). mkdir is atomic on any POSIX filesystem, so this doesn't
+# need flock (not installed on macOS by default, unlike the NAS's Linux
+# container).
+lock_dir="/tmp/feed-filter-update-and-publish.lock.d"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+    echo "another run is already in progress - skipping this invocation"
+    exit 0
+fi
+trap 'rmdir "$lock_dir" 2>/dev/null' EXIT
+
 ts="$(date +%Y-%m-%d-%H-%M)"
 run_log="logs/run-${ts}.log"
 mkdir -p logs

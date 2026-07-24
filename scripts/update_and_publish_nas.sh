@@ -7,6 +7,19 @@ set -euo pipefail
 # "NAS automation" section for the full setup.
 cd /repo
 
+# Refuse to run if another invocation (the scheduled cron fire, or a manual
+# `docker exec`) is already in progress - two processes writing to the same
+# /repo checkout at once is a real hazard: one's `git reset --hard` (see the
+# push-rejection handling below) can silently wipe out the other's
+# already-written-but-not-yet-committed docs/*.xml, well before that git
+# push logic even comes into play. /tmp is container-local (not the
+# bind-mounted repo), so the lock is scoped to this container instance.
+exec 9>/tmp/update-and-publish-nas.lock
+if ! flock -n 9; then
+    echo "another run is already in progress - skipping this invocation"
+    exit 0
+fi
+
 git config --global --add safe.directory /repo
 git config user.name "Chris Davis"
 git config user.email "AnotherGuitar@users.noreply.github.com"
