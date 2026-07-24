@@ -91,6 +91,7 @@ channels:
     url: "https://www.youtube.com/@RightsToRickySanchez/videos"
     min_minutes: 5
     recent_count: 30
+    start_at: "2:30"
     title_prefix: "RTRS"
     output: docs/rightstorickysanchez-main.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/rightstorickysanchez-main.xml"
@@ -99,6 +100,7 @@ channels:
     url: "https://www.youtube.com/@RightsToRickySanchez/streams"
     min_minutes: 5
     recent_count: 30
+    start_at: "2:30"
     title_prefix: "RTRS"
     output: docs/rightstorickysanchez-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/rightstorickysanchez-streams.xml"
