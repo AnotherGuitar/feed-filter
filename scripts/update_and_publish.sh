@@ -12,6 +12,23 @@ find logs -type f \( -name 'run-*.log' -o -name 'summary-*.txt' \) -mtime +30 -d
 
 exec > "$run_log" 2>&1
 
+# Defensive: recover from a stuck rebase/merge left by a previous run that
+# hit a conflict and couldn't finish cleanly - otherwise every future run
+# fails at this same step forever, since git refuses to pull with one
+# already in progress.
+if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+    echo "found a stuck rebase from a previous run - aborting it"
+    git rebase --abort || true
+fi
+if [ -f .git/MERGE_HEAD ]; then
+    echo "found a stuck merge from a previous run - aborting it"
+    git merge --abort || true
+fi
+
+# Pick up anything pushed from elsewhere (e.g. the NAS) before we start, so
+# we're not building on a stale base and don't create a needless conflict.
+git pull --rebase origin main
+
 /usr/local/bin/uv sync --python 3.13 --all-extras
 
 overall_status=0
@@ -37,14 +54,27 @@ if git diff --cached --quiet; then
     echo "No changes to commit"
 else
     git commit -m "Update filtered feeds"
-    git push
 
-    # Ping the WebSub hub now that the new content is actually live, so
-    # hub-aware readers (e.g. Feedly) get it without waiting on their own
-    # polling schedule.
-    for config in configs/*.yaml; do
-        /usr/local/bin/uv run feed-filter --config "$config" --ping-hub
-    done
+    # The run above can take a while across every channel, long enough that
+    # something else (e.g. the NAS) can push to main in the meantime,
+    # rejecting this push as non-fast-forward. docs/ is pure regenerated
+    # output with no hand-edited content, so there's nothing to meaningfully
+    # merge - if we lost the race, just discard our redundant commit rather
+    # than rebasing (which can itself conflict and leave the repo stuck
+    # mid-rebase for every future run). The next scheduled run (NAS or this
+    # one) regenerates fresh anyway.
+    if git push; then
+        # Ping the WebSub hub now that the new content is actually live, so
+        # hub-aware readers (e.g. Feedly) get it without waiting on their own
+        # polling schedule.
+        for config in configs/*.yaml; do
+            /usr/local/bin/uv run feed-filter --config "$config" --ping-hub
+        done
+    else
+        echo "push rejected - someone else published first; discarding this run's commit"
+        git fetch origin
+        git reset --hard origin/main
+    fi
 fi
 
 repo_dir="$(pwd)"
