@@ -168,6 +168,15 @@ channels:
     output: docs/moralresistance-streams.xml
     self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/moralresistance-streams.xml"
 
+  - name: provokedshow-streams
+    url: "https://www.youtube.com/@Provoked_Show/streams"
+    min_minutes: 5
+    recent_count: 30
+    start_at: 45
+    title_prefix: "ProvokedPod"
+    output: docs/provokedshow-streams.xml
+    self_url: "https://raw.githubusercontent.com/AnotherGuitar/feed-filter/main/docs/provokedshow-streams.xml"
+
   - name: radicalthinker-main
     url: "https://www.youtube.com/@RadicalThinkerYT/videos"
     min_minutes: 5
