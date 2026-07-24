@@ -1,9 +1,12 @@
 # Read by supercronic (see scripts/nas-entrypoint.sh) inside the
-# feed-filter-nas container. Runs every 3 hours. GITHUB_TOKEN is
+# feed-filter-nas container, which runs on UTC. Runs every 3 hours, at
+# 2/5/8/11/14/17/20/23 UTC = 1am/4am/7am/10am/1pm/4pm/7pm/10pm US Pacific
+# (currently PDT, UTC-7) - re-derive these hours if/when DST changes, since
+# a fixed UTC schedule doesn't follow Pacific's clock shift. GITHUB_TOKEN is
 # intentionally NOT set here - this file is bind-mounted straight from the
 # (public) git repo. supercronic forwards its own process environment (set
 # by `docker run --env-file`) to every job it runs, so the token reaches the
 # script without ever touching this file.
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-0 */3 * * * bash /repo/scripts/update_and_publish_nas.sh >> /repo/logs/nas-cron.log 2>&1
+0 2,5,8,11,14,17,20,23 * * * bash /repo/scripts/update_and_publish_nas.sh >> /repo/logs/nas-cron.log 2>&1
